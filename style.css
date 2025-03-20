@@ -10,6 +10,7 @@
   background-color: red;
 }
 #playground {
+  background-color: #aad751;
   display: flex;
   flex-wrap: wrap;
   width: 75vh;
@@ -17,6 +18,10 @@
   border: 1px solid black;
 }
 #snake {
+  position: absolute;
+  background-color: hsla(260, 75%, 50%, 0.637);
+}
+.tempSnake {
   position: absolute;
   background-color: hsla(260, 75%, 50%, 0.637);
 }

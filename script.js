@@ -4,6 +4,7 @@ const UP = "UP";
 const DOWN = "DOWN";
 
 const playground = document.getElementById("playground");
+const container = document.getElementById("container");
 const snake = document.getElementById("snake");
 const widthOfSquare = playground.clientWidth / 17;
 let intervals = [];
@@ -28,6 +29,8 @@ document.addEventListener("keydown", (e) => {
     case "a":
       moveSnakePos(LEFT);
       break;
+    case "w":
+      moveSnakePos(UP);
   }
 });
 
@@ -44,7 +47,48 @@ function moveSnakePos(direction) {
     case RIGHT:
       moveSnakeRight();
       break;
+    case UP:
+      moveSnakeUp();
   }
+}
+
+function moveSnakeUp() {
+  const tempSnake = document.createElement("div");
+  tempSnake.classList.add("tempSnake");
+
+  tempSnake.style.top = snake.getBoundingClientRect().top + "px";
+  tempSnake.style.left = snake.getBoundingClientRect().left + "px";
+  tempSnake.style.width = snakeWidth * widthOfSquare + "px";
+  tempSnake.style.height = widthOfSquare + "px";
+
+  container.appendChild(tempSnake);
+
+  clearIntervals();
+
+  snake.style.left =
+    snake.getBoundingClientRect().left + 2 * widthOfSquare + "px";
+
+  snake.style.width = widthOfSquare + "px";
+  snake.style.height = widthOfSquare + "px";
+
+  let i = 1;
+
+  const interval_id = setInterval(() => {
+    if (snakeWidth > i - 1) {
+      snake.style.height = i * widthOfSquare + "px";
+
+      tempSnake.style.width = (snakeWidth - i) * widthOfSquare + "px";
+
+      tempSnake.style.left =
+        tempSnake.getBoundingClientRect().left + widthOfSquare + "px";
+    }
+
+    const snakePos = snake.getBoundingClientRect().top;
+
+    snake.style.top = snakePos - widthOfSquare + "px";
+
+    i++;
+  }, 1000);
 }
 
 function moveSnakeLeft() {
@@ -89,6 +133,7 @@ function moveSnakeRight() {
 function changeSnakeSize() {
   snake.style.width = snakeWidth * widthOfSquare + "px";
   snake.style.height = widthOfSquare + "px";
+  snake.style.top = 10 * widthOfSquare + "px";
 }
 
 function createSquares() {
@@ -96,6 +141,7 @@ function createSquares() {
     const sqaure = document.createElement("div");
     sqaure.classList.add("square");
     sqaure.style.width = widthOfSquare + "px";
+    sqaure.style.height = widthOfSquare + "px";
     if (i % 2 === 0) sqaure.style.backgroundColor = "#aad751";
     else sqaure.style.backgroundColor = "#a2d149";
 
