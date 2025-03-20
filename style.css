@@ -1,0 +1,22 @@
+#container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.square {
+  box-sizing: border-box;
+
+  background-color: red;
+}
+#playground {
+  display: flex;
+  flex-wrap: wrap;
+  width: 75vh;
+  height: 75vh;
+  border: 1px solid black;
+}
+#snake {
+  position: absolute;
+  background-color: hsla(260, 75%, 50%, 0.637);
+}
