@@ -6,14 +6,14 @@ const DOWN = "DOWN";
 const playground = document.getElementById("playground");
 const snake = document.getElementById("snake");
 const widthOfSquare = playground.clientWidth / 17;
-let moveLeftInterval;
+let intervals = [];
 
 let snakeWidth = 3;
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
 
-  moveSnakePos(LEFT);
+  moveSnakePos(RIGHT);
   changeSnakeSize();
   createSquares();
 });
@@ -23,36 +23,67 @@ document.addEventListener("keydown", (e) => {
 
   switch (key) {
     case "d":
+      moveSnakePos(RIGHT);
+      break;
+    case "a":
+      moveSnakePos(LEFT);
+      break;
   }
 });
 
-function moveSnakePos(direction) {
-  const interval = setInterval(() => {
-    const snakePos = snake.getBoundingClientRect().left;
+function clearIntervals() {
+  intervals.forEach(clearInterval);
+  intervals = [];
+}
 
-    switch (direction) {
-      case LEFT:
-        snake.style.left = snakePos - widthOfSquare + "px";
-        break;
-      case RIGHT:
-        snake.style.left = snakePos + widthOfSquare + "px";
-        break;
-      case UP:
-        snake.style.top = snakePos - widthOfSquare + "px";
-        break;
-      case DOWN:
-        snake.style.top = snakePos + widthOfSquare + "px";
-        break;
-    }
-  }, 1000);
+function moveSnakePos(direction) {
+  switch (direction) {
+    case LEFT:
+      moveSnakeLeft();
+      break;
+    case RIGHT:
+      moveSnakeRight();
+      break;
+  }
 }
 
 function moveSnakeLeft() {
-  moveLeftInterval = setInterval(() => {
+  clearIntervals();
+
+  const interval_id = setInterval(() => {
+    console.log(interval_id);
     const snakePos = snake.getBoundingClientRect().left;
 
     snake.style.left = snakePos - widthOfSquare + "px";
+
+    if (
+      snake.getBoundingClientRect().left - widthOfSquare <=
+      playground.getBoundingClientRect().left
+    ) {
+      clearIntervals();
+      return;
+    }
   }, 1000);
+
+  intervals.push(interval_id);
+}
+
+function moveSnakeRight() {
+  clearIntervals();
+
+  const interval_id = setInterval(() => {
+    const snakePos = snake.getBoundingClientRect().left;
+
+    snake.style.left = snakePos + widthOfSquare + "px";
+    if (
+      snake.getBoundingClientRect().right + widthOfSquare >=
+      playground.getBoundingClientRect().right
+    ) {
+      clearIntervals();
+      return;
+    }
+  }, 1000);
+  intervals.push(interval_id);
 }
 
 function changeSnakeSize() {
