@@ -2,12 +2,14 @@ const LEFT = "LEFT";
 const RIGHT = "RIGHT";
 const UP = "UP";
 const DOWN = "DOWN";
-const moveSpeedInMS = 500;
+const speedInMs = 500;
 
 const playground = document.getElementById("playground");
 const container = document.getElementById("container");
 const snake = document.getElementById("snake");
 const dimensionOfSquare = playground.clientWidth / 17;
+
+let timeSinceLastMove;
 
 let apple;
 let snakeTail;
@@ -23,16 +25,16 @@ let prevPositions = [
   },
 ];
 
-let snakeSize = 10;
+let snakeSize = 3;
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
 
-  snakeRight();
   changeSnakeSize();
   createSquares();
   spawnApple();
   checkIfAppleFound();
+  snakeRight();
 });
 
 document.addEventListener("keydown", (e) => {
@@ -58,32 +60,35 @@ function inBound(a, b, bound) {
   return (a - bound < b && a + bound > b) || (b - bound < a && b + bound > a);
 }
 
+function isMoveDownSlowEnoguh() {
+  console.log(Date.now() - timeSinceLastMove >= 500);
+  return Date.now() - timeSinceLastMove >= 500;
+}
+
 function checkIfAppleFound() {
   if (!apple) return;
 
   interval = setInterval(() => {
-    console.log(
-      Math.round(snake.getBoundingClientRect().left) - 1,
-      Math.round(apple.getBoundingClientRect().left),
-      Math.round(snake.getBoundingClientRect().top) + 1,
-      Math.round(apple.getBoundingClientRect().top)
-    );
-
-    if (
-      inBound(
-        snake.getBoundingClientRect().left,
-        apple.getBoundingClientRect().left,
-        dimensionOfSquare / 5
-      ) &&
-      inBound(
-        snake.getBoundingClientRect().top,
-        apple.getBoundingClientRect().top,
-        dimensionOfSquare / 5
-      )
-    ) {
+    if (isAppleFound()) {
+      snakeSize++;
       spawnApple();
     }
-  }, moveSpeedInMS);
+  }, speedInMs - 50);
+}
+
+function isAppleFound() {
+  return (
+    inBound(
+      snake.getBoundingClientRect().left,
+      apple.getBoundingClientRect().left,
+      dimensionOfSquare / 5
+    ) &&
+    inBound(
+      snake.getBoundingClientRect().top,
+      apple.getBoundingClientRect().top,
+      dimensionOfSquare / 5
+    )
+  );
 }
 
 function clearIntervals() {
@@ -116,15 +121,9 @@ function renderSingleTail(index) {
 
 function snakeRight() {
   clearIntervals();
-  //renderTail();
-  movingDirection = RIGHT;
 
   const interval_id = setInterval(() => {
-    const snakePos = snake.getBoundingClientRect().left;
-
-    snake.style.left = snakePos + dimensionOfSquare + "px";
-    addSnakePrev();
-
+    onceRight();
     if (
       snake.getBoundingClientRect().right + dimensionOfSquare >=
       playground.getBoundingClientRect().right
@@ -132,20 +131,22 @@ function snakeRight() {
       clearIntervals();
       return;
     }
-  }, moveSpeedInMS);
+  }, speedInMs);
   intervals.push(interval_id);
+}
+function onceRight() {
+  const snakePos = snake.getBoundingClientRect().left;
+  timeSinceLastMove = Date.now();
+
+  snake.style.left = snakePos + dimensionOfSquare + "px";
+  addSnakePrev();
 }
 
 function snakeLeft() {
   clearIntervals();
-  //renderTail();
 
   const interval_id = setInterval(() => {
-    const snakePos = snake.getBoundingClientRect().left;
-
-    snake.style.left = snakePos - dimensionOfSquare + "px";
-    addSnakePrev();
-
+    onceLeft();
     if (
       snake.getBoundingClientRect().left - dimensionOfSquare <=
       playground.getBoundingClientRect().left
@@ -153,20 +154,23 @@ function snakeLeft() {
       clearIntervals();
       return;
     }
-  }, moveSpeedInMS);
+  }, speedInMs);
   intervals.push(interval_id);
+}
+
+function onceLeft() {
+  const snakePos = snake.getBoundingClientRect().left;
+  timeSinceLastMove = Date.now();
+
+  snake.style.left = snakePos - dimensionOfSquare + "px";
+  addSnakePrev();
 }
 
 function snakeUp() {
   clearIntervals();
-  //renderTail();
 
   const interval_id = setInterval(() => {
-    const snakePos = snake.getBoundingClientRect().top;
-
-    snake.style.top = snakePos - dimensionOfSquare + "px";
-    addSnakePrev();
-
+    onceUp();
     if (
       snake.getBoundingClientRect().top - dimensionOfSquare <=
       playground.getBoundingClientRect().top
@@ -174,19 +178,23 @@ function snakeUp() {
       clearIntervals();
       return;
     }
-  }, moveSpeedInMS);
+  }, speedInMs);
   intervals.push(interval_id);
+}
+
+function onceUp() {
+  const snakePos = snake.getBoundingClientRect().top;
+  timeSinceLastMove = Date.now();
+
+  snake.style.top = snakePos - dimensionOfSquare + "px";
+  addSnakePrev();
 }
 
 function snakeDown() {
   clearIntervals();
   //renderTail();
-
   const interval_id = setInterval(() => {
-    const snakePos = snake.getBoundingClientRect().top;
-
-    snake.style.top = snakePos + dimensionOfSquare + "px";
-    addSnakePrev();
+    onceDown();
 
     if (
       snake.getBoundingClientRect().top + dimensionOfSquare >=
@@ -195,8 +203,16 @@ function snakeDown() {
       clearIntervals();
       return;
     }
-  }, moveSpeedInMS);
+  }, speedInMs);
   intervals.push(interval_id);
+}
+
+function onceDown() {
+  const snakePos = snake.getBoundingClientRect().top;
+  timeSinceLastMove = Date.now();
+
+  snake.style.top = snakePos + dimensionOfSquare + "px";
+  addSnakePrev();
 }
 
 function getRandomInt(max) {
@@ -224,8 +240,8 @@ function spawnApple() {
       break;
     }
 
-    left = leftBound + getRandomInt(17) * dimensionOfSquare + "px";
-    top = topBound + getRandomInt(17) * dimensionOfSquare + "px";
+    left = leftBound + getRandomInt(16) * dimensionOfSquare + "px";
+    top = topBound + getRandomInt(16) * dimensionOfSquare + "px";
 
     console.log(left);
     index++;
