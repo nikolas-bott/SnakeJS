@@ -9,6 +9,9 @@ const snake = document.getElementById("snake");
 const dimensionOfSquare = playground.clientWidth / 17;
 
 let snakeTail;
+let snakeTails = [];
+let secondSnakeTail;
+
 let movingDirection = RIGHT;
 let intervals = [];
 let prevPositions = [
@@ -18,7 +21,7 @@ let prevPositions = [
   },
 ];
 
-let snakeSize = 4;
+let snakeSize = 10;
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
@@ -52,33 +55,57 @@ function clearIntervals() {
   intervals = [];
 }
 
-function renderSnakeTail() {
-  if (snakeTail) snakeTail.remove();
-  console.log("Test");
-  snakeTail = document.createElement("div");
+function renderTail() {
+  for (let i = 1; i < prevPositions.length; i++) {
+    renderSingleTail(i);
+  }
+  // if (snakeTail) snakeTail.remove();
+  // console.log("Test");
+  // snakeTail = document.createElement("div");
 
-  snakeTail.style.top = snake.getBoundingClientRect().top + "px";
-  snakeTail.style.left = snake.getBoundingClientRect().left + "px";
-  snakeTail.style.width = dimensionOfSquare + "px";
-  snakeTail.style.height = dimensionOfSquare + "px";
-  container.appendChild(snakeTail);
+  // snakeTail.style.top = snake.getBoundingClientRect().top + "px";
+  // snakeTail.style.left = snake.getBoundingClientRect().left + "px";
+  // snakeTail.style.width = dimensionOfSquare + "px";
+  // snakeTail.style.height = dimensionOfSquare + "px";
+  // container.appendChild(snakeTail);
 
-  snakeTail.classList.add("tempSnake");
+  // snakeTail.classList.add("tempSnake");
 
-  snakeTail.style.left = prevPositions[0].left + "px";
-  snakeTail.style.top = prevPositions[0].top + "px";
+  // let i = 1;
+  // const interval_id = setInterval(() => {
+  //   snakeTail.style.left = prevPositions[i].left + "px";
+  //   snakeTail.style.top = prevPositions[i].top + "px";
+  // }, 1000);
+  // intervals.push(interval_id);
+}
 
-  let i = 1;
-  const interval_id = setInterval(() => {
-    snakeTail.style.left = prevPositions[i].left + "px";
-    snakeTail.style.top = prevPositions[i].top + "px";
-  }, 1000);
-  intervals.push(interval_id);
+function renderSingleTail(index) {
+  if (snakeTails[index]) snakeTails[index].remove();
+
+  snakeTails[index] = document.createElement("div");
+
+  snakeTails[index].style.top = snake.getBoundingClientRect().top + "px";
+  snakeTails[index].style.left = snake.getBoundingClientRect().left + "px";
+  snakeTails[index].style.width = dimensionOfSquare + "px";
+  snakeTails[index].style.height = dimensionOfSquare + "px";
+  snakeTails[index].classList.add("tempSnake");
+
+  container.appendChild(snakeTails[index]);
+
+  snakeTails[index].style.left = prevPositions[index].left + "px";
+  snakeTails[index].style.top = prevPositions[index].top + "px";
+
+  // let i = index;
+  // const interval_id = setInterval(() => {
+  //   snakeTails[index].style.left = prevPositions[i].left + "px";
+  //   snakeTails[index].style.top = prevPositions[i].top + "px";
+  // }, 1000);
+  //intervals.push(interval_id);
 }
 
 function snakeRight() {
   clearIntervals();
-  renderSnakeTail();
+  //renderTail();
   movingDirection = RIGHT;
 
   const interval_id = setInterval(() => {
@@ -100,7 +127,7 @@ function snakeRight() {
 
 function snakeLeft() {
   clearIntervals();
-  renderSnakeTail();
+  //renderTail();
 
   const interval_id = setInterval(() => {
     const snakePos = snake.getBoundingClientRect().left;
@@ -121,7 +148,7 @@ function snakeLeft() {
 
 function snakeUp() {
   clearIntervals();
-  renderSnakeTail();
+  //renderTail();
 
   const interval_id = setInterval(() => {
     const snakePos = snake.getBoundingClientRect().top;
@@ -142,7 +169,7 @@ function snakeUp() {
 
 function snakeDown() {
   clearIntervals();
-  renderSnakeTail();
+  //renderTail();
 
   const interval_id = setInterval(() => {
     const snakePos = snake.getBoundingClientRect().top;
@@ -169,6 +196,7 @@ function addSnakePrev() {
     left: snake.getBoundingClientRect().left,
     top: snake.getBoundingClientRect().top,
   });
+  renderTail();
 }
 
 function changeSnakeSize() {
