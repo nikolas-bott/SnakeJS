@@ -2,12 +2,14 @@ const LEFT = "LEFT";
 const RIGHT = "RIGHT";
 const UP = "UP";
 const DOWN = "DOWN";
+const moveSpeedInMS = 500;
 
 const playground = document.getElementById("playground");
 const container = document.getElementById("container");
 const snake = document.getElementById("snake");
 const dimensionOfSquare = playground.clientWidth / 17;
 
+let apple;
 let snakeTail;
 let snakeTails = [];
 let secondSnakeTail;
@@ -29,6 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
   snakeRight();
   changeSnakeSize();
   createSquares();
+  spawnApple();
+  checkIfAppleFound();
 });
 
 document.addEventListener("keydown", (e) => {
@@ -50,6 +54,38 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+function inBound(a, b, bound) {
+  return (a - bound < b && a + bound > b) || (b - bound < a && b + bound > a);
+}
+
+function checkIfAppleFound() {
+  if (!apple) return;
+
+  interval = setInterval(() => {
+    console.log(
+      Math.round(snake.getBoundingClientRect().left) - 1,
+      Math.round(apple.getBoundingClientRect().left),
+      Math.round(snake.getBoundingClientRect().top) + 1,
+      Math.round(apple.getBoundingClientRect().top)
+    );
+
+    if (
+      inBound(
+        snake.getBoundingClientRect().left,
+        apple.getBoundingClientRect().left,
+        dimensionOfSquare / 5
+      ) &&
+      inBound(
+        snake.getBoundingClientRect().top,
+        apple.getBoundingClientRect().top,
+        dimensionOfSquare / 5
+      )
+    ) {
+      spawnApple();
+    }
+  }, moveSpeedInMS);
+}
+
 function clearIntervals() {
   intervals.forEach(clearInterval);
   intervals = [];
@@ -59,24 +95,6 @@ function renderTail() {
   for (let i = 1; i < prevPositions.length; i++) {
     renderSingleTail(i);
   }
-  // if (snakeTail) snakeTail.remove();
-  // console.log("Test");
-  // snakeTail = document.createElement("div");
-
-  // snakeTail.style.top = snake.getBoundingClientRect().top + "px";
-  // snakeTail.style.left = snake.getBoundingClientRect().left + "px";
-  // snakeTail.style.width = dimensionOfSquare + "px";
-  // snakeTail.style.height = dimensionOfSquare + "px";
-  // container.appendChild(snakeTail);
-
-  // snakeTail.classList.add("tempSnake");
-
-  // let i = 1;
-  // const interval_id = setInterval(() => {
-  //   snakeTail.style.left = prevPositions[i].left + "px";
-  //   snakeTail.style.top = prevPositions[i].top + "px";
-  // }, 1000);
-  // intervals.push(interval_id);
 }
 
 function renderSingleTail(index) {
@@ -94,13 +112,6 @@ function renderSingleTail(index) {
 
   snakeTails[index].style.left = prevPositions[index].left + "px";
   snakeTails[index].style.top = prevPositions[index].top + "px";
-
-  // let i = index;
-  // const interval_id = setInterval(() => {
-  //   snakeTails[index].style.left = prevPositions[i].left + "px";
-  //   snakeTails[index].style.top = prevPositions[i].top + "px";
-  // }, 1000);
-  //intervals.push(interval_id);
 }
 
 function snakeRight() {
@@ -121,7 +132,7 @@ function snakeRight() {
       clearIntervals();
       return;
     }
-  }, 1000);
+  }, moveSpeedInMS);
   intervals.push(interval_id);
 }
 
@@ -142,7 +153,7 @@ function snakeLeft() {
       clearIntervals();
       return;
     }
-  }, 1000);
+  }, moveSpeedInMS);
   intervals.push(interval_id);
 }
 
@@ -163,7 +174,7 @@ function snakeUp() {
       clearIntervals();
       return;
     }
-  }, 1000);
+  }, moveSpeedInMS);
   intervals.push(interval_id);
 }
 
@@ -184,8 +195,50 @@ function snakeDown() {
       clearIntervals();
       return;
     }
-  }, 1000);
+  }, moveSpeedInMS);
   intervals.push(interval_id);
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max) + 1;
+}
+
+function spawnApple() {
+  if (apple) apple.remove();
+  const leftBound = playground.getBoundingClientRect().left;
+  const topBound = playground.getBoundingClientRect().top;
+
+  apple = document.createElement("div");
+  apple.style.height = dimensionOfSquare + "px";
+  apple.style.width = dimensionOfSquare + "px";
+  apple.classList.add("apple");
+  container.append(apple);
+
+  let index = 0;
+  let left;
+  let top;
+
+  do {
+    if (index > 1000) {
+      console.log("Reached 1000 loops in do-while");
+      break;
+    }
+
+    left = leftBound + getRandomInt(17) * dimensionOfSquare + "px";
+    top = topBound + getRandomInt(17) * dimensionOfSquare + "px";
+
+    console.log(left);
+    index++;
+  } while (
+    prevPositions.some(
+      (pos) =>
+        Math.round(left) === Math.round(pos.left) ||
+        Math.round(top) === Math.round(pos.top)
+    )
+  );
+
+  apple.style.left = left;
+  apple.style.top = top;
 }
 
 function addSnakePrev() {

@@ -21,6 +21,11 @@
   position: absolute;
   background-color: hsla(260, 75%, 50%, 0.637);
 }
+.apple {
+  background-color: red;
+  position: absolute;
+  border-radius: 50px;
+}
 .tempSnake {
   position: absolute;
   background-color: hsla(260, 75%, 50%, 0.637);
