@@ -1,8 +1,25 @@
+* {
+  margin: 0;
+}
+
 #container {
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+p {
+  padding: 10px;
+  font-weight: 900;
+  color: black;
+  font-size: 3em;
+  font-family: monospace;
+}
+#score-container {
+  width: 75vh;
+  display: flex;
+  justify-content: space-between;
 }
 .square {
   box-sizing: border-box;
