@@ -6,16 +6,24 @@ const DOWN = "DOWN";
 const playground = document.getElementById("playground");
 const container = document.getElementById("container");
 const snake = document.getElementById("snake");
-const widthOfSquare = playground.clientWidth / 17;
-let movesRight = true;
-let intervals = [];
+const dimensionOfSquare = playground.clientWidth / 17;
 
-let snakeWidth = 3;
+let snakeTail;
+let movingDirection = RIGHT;
+let intervals = [];
+let prevPositions = [
+  {
+    left: snake.getBoundingClientRect().left,
+    top: 10 * dimensionOfSquare,
+  },
+];
+
+let snakeSize = 4;
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
 
-  moveSnakePos(RIGHT);
+  snakeRight();
   changeSnakeSize();
   createSquares();
 });
@@ -25,13 +33,17 @@ document.addEventListener("keydown", (e) => {
 
   switch (key) {
     case "d":
-      moveSnakePos(RIGHT);
+      snakeRight();
       break;
     case "a":
-      moveSnakePos(LEFT);
+      snakeLeft();
       break;
     case "w":
-      moveSnakePos(UP);
+      snakeUp();
+      break;
+    case "s":
+      snakeDown();
+      break;
   }
 });
 
@@ -40,109 +52,43 @@ function clearIntervals() {
   intervals = [];
 }
 
-function moveSnakePos(direction) {
-  switch (direction) {
-    case LEFT:
-      moveSnakeLeft();
-      break;
-    case RIGHT:
-      moveSnakeRight();
-      break;
-    case UP:
-      moveSnakeUp();
-  }
-}
+function renderSnakeTail() {
+  if (snakeTail) snakeTail.remove();
+  console.log("Test");
+  snakeTail = document.createElement("div");
 
-function moveSnakeUp() {
-  clearIntervals();
+  snakeTail.style.top = snake.getBoundingClientRect().top + "px";
+  snakeTail.style.left = snake.getBoundingClientRect().left + "px";
+  snakeTail.style.width = dimensionOfSquare + "px";
+  snakeTail.style.height = dimensionOfSquare + "px";
+  container.appendChild(snakeTail);
 
-  snake.style.width = widthOfSquare + "px";
-  snake.style.height = widthOfSquare + "px";
+  snakeTail.classList.add("tempSnake");
+
+  snakeTail.style.left = prevPositions[0].left + "px";
+  snakeTail.style.top = prevPositions[0].top + "px";
 
   let i = 1;
-
-  renderTempSnake();
-
-  if (movesRight) {
-    snake.style.left =
-      snake.getBoundingClientRect().left + 2 * widthOfSquare + "px";
-  }
-
   const interval_id = setInterval(() => {
-    if (snakeWidth > i - 1) {
-      snake.style.height = i * widthOfSquare + "px";
-    }
-
-    const snakePos = snake.getBoundingClientRect().top;
-
-    snake.style.top = snakePos - widthOfSquare + "px";
-
-    i++;
+    snakeTail.style.left = prevPositions[i].left + "px";
+    snakeTail.style.top = prevPositions[i].top + "px";
   }, 1000);
-
   intervals.push(interval_id);
 }
 
-function renderTempSnake() {
-  const tempSnake = document.createElement("div");
-  container.appendChild(tempSnake);
-
-  tempSnake.classList.add("tempSnake");
-
-  tempSnake.style.top = snake.getBoundingClientRect().top + "px";
-  tempSnake.style.left = snake.getBoundingClientRect().left + "px";
-  tempSnake.style.width = snakeWidth * widthOfSquare + "px";
-  tempSnake.style.height = widthOfSquare + "px";
-
-  let i = 1;
-
-  const interval_id = setInterval(() => {
-    if (snakeWidth > i - 1) {
-      tempSnake.style.width = (snakeWidth - i) * widthOfSquare + "px";
-
-      if (movesRight) {
-        tempSnake.style.left =
-          tempSnake.getBoundingClientRect().left + widthOfSquare + "px";
-      }
-    } else {
-      clearInterval(interval_id);
-    }
-    i++;
-  }, 1000);
-}
-
-function moveSnakeLeft() {
+function snakeRight() {
   clearIntervals();
-  movesRight = false;
-
-  const interval_id = setInterval(() => {
-    console.log(interval_id);
-    const snakePos = snake.getBoundingClientRect().left;
-
-    snake.style.left = snakePos - widthOfSquare + "px";
-
-    if (
-      snake.getBoundingClientRect().left - widthOfSquare <=
-      playground.getBoundingClientRect().left
-    ) {
-      clearIntervals();
-      return;
-    }
-  }, 1000);
-
-  intervals.push(interval_id);
-}
-
-function moveSnakeRight() {
-  clearIntervals();
-  movesRight = true;
+  renderSnakeTail();
+  movingDirection = RIGHT;
 
   const interval_id = setInterval(() => {
     const snakePos = snake.getBoundingClientRect().left;
 
-    snake.style.left = snakePos + widthOfSquare + "px";
+    snake.style.left = snakePos + dimensionOfSquare + "px";
+    addSnakePrev();
+
     if (
-      snake.getBoundingClientRect().right + widthOfSquare >=
+      snake.getBoundingClientRect().right + dimensionOfSquare >=
       playground.getBoundingClientRect().right
     ) {
       clearIntervals();
@@ -152,18 +98,91 @@ function moveSnakeRight() {
   intervals.push(interval_id);
 }
 
+function snakeLeft() {
+  clearIntervals();
+  renderSnakeTail();
+
+  const interval_id = setInterval(() => {
+    const snakePos = snake.getBoundingClientRect().left;
+
+    snake.style.left = snakePos - dimensionOfSquare + "px";
+    addSnakePrev();
+
+    if (
+      snake.getBoundingClientRect().left - dimensionOfSquare <=
+      playground.getBoundingClientRect().left
+    ) {
+      clearIntervals();
+      return;
+    }
+  }, 1000);
+  intervals.push(interval_id);
+}
+
+function snakeUp() {
+  clearIntervals();
+  renderSnakeTail();
+
+  const interval_id = setInterval(() => {
+    const snakePos = snake.getBoundingClientRect().top;
+
+    snake.style.top = snakePos - dimensionOfSquare + "px";
+    addSnakePrev();
+
+    if (
+      snake.getBoundingClientRect().top - dimensionOfSquare <=
+      playground.getBoundingClientRect().top
+    ) {
+      clearIntervals();
+      return;
+    }
+  }, 1000);
+  intervals.push(interval_id);
+}
+
+function snakeDown() {
+  clearIntervals();
+  renderSnakeTail();
+
+  const interval_id = setInterval(() => {
+    const snakePos = snake.getBoundingClientRect().top;
+
+    snake.style.top = snakePos + dimensionOfSquare + "px";
+    addSnakePrev();
+
+    if (
+      snake.getBoundingClientRect().top + dimensionOfSquare >=
+      playground.getBoundingClientRect().bottom
+    ) {
+      clearIntervals();
+      return;
+    }
+  }, 1000);
+  intervals.push(interval_id);
+}
+
+function addSnakePrev() {
+  if (prevPositions.length > snakeSize) {
+    prevPositions.shift();
+  }
+  prevPositions.push({
+    left: snake.getBoundingClientRect().left,
+    top: snake.getBoundingClientRect().top,
+  });
+}
+
 function changeSnakeSize() {
-  snake.style.width = snakeWidth * widthOfSquare + "px";
-  snake.style.height = widthOfSquare + "px";
-  snake.style.top = 10 * widthOfSquare + "px";
+  snake.style.width = dimensionOfSquare + "px";
+  snake.style.height = dimensionOfSquare + "px";
+  snake.style.top = 10 * dimensionOfSquare + "px";
 }
 
 function createSquares() {
   for (let i = 0; i < 17 * 17; i++) {
     const sqaure = document.createElement("div");
     sqaure.classList.add("square");
-    sqaure.style.width = widthOfSquare + "px";
-    sqaure.style.height = widthOfSquare + "px";
+    sqaure.style.width = dimensionOfSquare + "px";
+    sqaure.style.height = dimensionOfSquare + "px";
     if (i % 2 === 0) sqaure.style.backgroundColor = "#aad751";
     else sqaure.style.backgroundColor = "#a2d149";
 
