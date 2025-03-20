@@ -7,6 +7,7 @@ const playground = document.getElementById("playground");
 const container = document.getElementById("container");
 const snake = document.getElementById("snake");
 const widthOfSquare = playground.clientWidth / 17;
+let movesRight = true;
 let intervals = [];
 
 let snakeWidth = 3;
@@ -53,34 +54,23 @@ function moveSnakePos(direction) {
 }
 
 function moveSnakeUp() {
-  const tempSnake = document.createElement("div");
-  tempSnake.classList.add("tempSnake");
-
-  tempSnake.style.top = snake.getBoundingClientRect().top + "px";
-  tempSnake.style.left = snake.getBoundingClientRect().left + "px";
-  tempSnake.style.width = snakeWidth * widthOfSquare + "px";
-  tempSnake.style.height = widthOfSquare + "px";
-
-  container.appendChild(tempSnake);
-
   clearIntervals();
-
-  snake.style.left =
-    snake.getBoundingClientRect().left + 2 * widthOfSquare + "px";
 
   snake.style.width = widthOfSquare + "px";
   snake.style.height = widthOfSquare + "px";
 
   let i = 1;
 
+  renderTempSnake();
+
+  if (movesRight) {
+    snake.style.left =
+      snake.getBoundingClientRect().left + 2 * widthOfSquare + "px";
+  }
+
   const interval_id = setInterval(() => {
     if (snakeWidth > i - 1) {
       snake.style.height = i * widthOfSquare + "px";
-
-      tempSnake.style.width = (snakeWidth - i) * widthOfSquare + "px";
-
-      tempSnake.style.left =
-        tempSnake.getBoundingClientRect().left + widthOfSquare + "px";
     }
 
     const snakePos = snake.getBoundingClientRect().top;
@@ -89,10 +79,41 @@ function moveSnakeUp() {
 
     i++;
   }, 1000);
+
+  intervals.push(interval_id);
+}
+
+function renderTempSnake() {
+  const tempSnake = document.createElement("div");
+  container.appendChild(tempSnake);
+
+  tempSnake.classList.add("tempSnake");
+
+  tempSnake.style.top = snake.getBoundingClientRect().top + "px";
+  tempSnake.style.left = snake.getBoundingClientRect().left + "px";
+  tempSnake.style.width = snakeWidth * widthOfSquare + "px";
+  tempSnake.style.height = widthOfSquare + "px";
+
+  let i = 1;
+
+  const interval_id = setInterval(() => {
+    if (snakeWidth > i - 1) {
+      tempSnake.style.width = (snakeWidth - i) * widthOfSquare + "px";
+
+      if (movesRight) {
+        tempSnake.style.left =
+          tempSnake.getBoundingClientRect().left + widthOfSquare + "px";
+      }
+    } else {
+      clearInterval(interval_id);
+    }
+    i++;
+  }, 1000);
 }
 
 function moveSnakeLeft() {
   clearIntervals();
+  movesRight = false;
 
   const interval_id = setInterval(() => {
     console.log(interval_id);
@@ -114,6 +135,7 @@ function moveSnakeLeft() {
 
 function moveSnakeRight() {
   clearIntervals();
+  movesRight = true;
 
   const interval_id = setInterval(() => {
     const snakePos = snake.getBoundingClientRect().left;
