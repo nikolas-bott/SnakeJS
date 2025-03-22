@@ -135,7 +135,7 @@ function snakeRight() {
   const interval_id = setInterval(() => {
     onceRight();
     if (
-      snake.getBoundingClientRect().right + dimensionOfSquare >=
+      snake.getBoundingClientRect().right >=
       playground.getBoundingClientRect().right
     ) {
       fail();
@@ -157,7 +157,7 @@ function snakeLeft() {
   const interval_id = setInterval(() => {
     onceLeft();
     if (
-      snake.getBoundingClientRect().left - dimensionOfSquare <=
+      snake.getBoundingClientRect().left <=
       playground.getBoundingClientRect().left
     ) {
       fail();
@@ -180,7 +180,7 @@ function snakeUp() {
   const interval_id = setInterval(() => {
     onceUp();
     if (
-      snake.getBoundingClientRect().top <=
+      snake.getBoundingClientRect().top + dimensionOfSquare <=
       playground.getBoundingClientRect().top
     ) {
       fail();
@@ -210,7 +210,7 @@ function snakeDown() {
     onceDown();
 
     if (
-      snake.getBoundingClientRect().bottom + dimensionOfSquare >=
+      snake.getBoundingClientRect().bottom >=
       playground.getBoundingClientRect().bottom
     ) {
       fail();
@@ -286,7 +286,8 @@ function fail() {
   score.innerText = "Apples found: " + foundApples;
 
   clearIntervals();
-  snake.style.top = 10.7 * dimensionOfSquare + "px";
+  snake.style.top =
+    playground.getBoundingClientRect().top + 7 * dimensionOfSquare + "px";
   snake.style.left = playground.getBoundingClientRect().left + "px";
   snakeRight();
   if (apple) apple.remove();
@@ -296,7 +297,8 @@ function fail() {
 function changeSnakeSize() {
   snake.style.width = dimensionOfSquare + "px";
   snake.style.height = dimensionOfSquare + "px";
-  snake.style.top = 10.7 * dimensionOfSquare + "px";
+  snake.style.top =
+    playground.getBoundingClientRect().top + 7 * dimensionOfSquare + "px";
 }
 
 function createSquares() {
