@@ -111,6 +111,14 @@ function renderTail() {
   }
 }
 
+function removeSnakeTails() {
+  for (let i = 1; i < prevPositions.length; i++) {
+    if (snakeTails[i]) snakeTails[i].remove();
+  }
+  snakeTails = [];
+  prevPositions = [];
+}
+
 function renderSingleTail(index) {
   if (snakeTails[index]) snakeTails[index].remove();
 
@@ -136,8 +144,6 @@ function snakeRight() {
   if (isMoveDownSlowEnoguh()) {
     interval = 0;
   }
-
-  console.log("Interval: " + interval);
 
   const timeout_id = setTimeout(() => {
     onceRight();
@@ -168,8 +174,6 @@ function snakeLeft() {
   if (isMoveDownSlowEnoguh()) {
     interval = 0;
   }
-
-  console.log("Interval: " + interval);
 
   const timeout_id = setTimeout(() => {
     onceLeft();
@@ -202,8 +206,6 @@ function snakeUp() {
     interval = 0;
   }
 
-  console.log("Interval: " + interval);
-
   const timeout_id = setTimeout(() => {
     onceUp();
     snakeUp();
@@ -229,6 +231,8 @@ function onceUp() {
 function newMove() {
   timeSinceLastMove = Date.now();
   checkIfAppleFound();
+
+  isSnakeColidingWithBody();
   addSnakePrev();
 }
 
@@ -240,8 +244,6 @@ function snakeDown() {
   if (isMoveDownSlowEnoguh()) {
     interval = 0;
   }
-
-  console.log("Interval: " + interval);
 
   const timeout_id = setTimeout(() => {
     onceDown();
@@ -317,10 +319,27 @@ function addSnakePrev() {
   });
   renderTail();
 }
+function isSnakeColidingWithBody() {
+  const snakeLeft = snake.getBoundingClientRect().left;
+  const snakeTop = snake.getBoundingClientRect().top;
+
+  for (let i = 1; i < prevPositions.length; i++) {
+    if (
+      inBound(prevPositions[i].left, snakeLeft, dimensionOfSquare / 5) &&
+      inBound(prevPositions[i].top, snakeTop, dimensionOfSquare / 5)
+    ) {
+      fail();
+      console.log("Touching");
+    }
+  }
+}
 
 function fail() {
   snakeSize = 3;
   foundApples = 0;
+
+  removeSnakeTails();
+
   score.innerText = "Apples found: " + foundApples;
 
   clearTimeouts();
