@@ -13,6 +13,7 @@ const dimensionOfSquare = playground.clientWidth / 17;
 
 let timeSinceLastMove;
 
+let apple_interval;
 let timeouts = [];
 let apple;
 let snakeTail;
@@ -90,12 +91,12 @@ function isAppleFound() {
     inBound(
       snake.getBoundingClientRect().left,
       apple.getBoundingClientRect().left,
-      dimensionOfSquare / 5
+      dimensionOfSquare / 3
     ) &&
     inBound(
       snake.getBoundingClientRect().top,
       apple.getBoundingClientRect().top,
-      dimensionOfSquare / 5
+      dimensionOfSquare / 3
     )
   );
 }
@@ -106,7 +107,7 @@ function clearTimeouts() {
 }
 
 function renderTail() {
-  for (let i = 1; i < prevPositions.length; i++) {
+  for (let i = 1; i < prevPositions.length - 1; i++) {
     renderSingleTail(i);
   }
 }
@@ -123,11 +124,15 @@ function renderSingleTail(index) {
   if (snakeTails[index]) snakeTails[index].remove();
 
   snakeTails[index] = document.createElement("div");
+  console.log((index % 2) * 0.1 + 0.452);
+
+  snakeTails[index].style.backgroundColor =
+    "hsla(260, 75%, 50%, " + ((index % 2) * 0.05 + 0.452) + ")";
 
   snakeTails[index].style.top = snake.getBoundingClientRect().top + "px";
   snakeTails[index].style.left = snake.getBoundingClientRect().left + "px";
-  snakeTails[index].style.width = dimensionOfSquare + "px";
-  snakeTails[index].style.height = dimensionOfSquare + "px";
+  snakeTails[index].style.width = dimensionOfSquare - 0.4 + "px";
+  snakeTails[index].style.height = dimensionOfSquare - 0.4 + "px";
   snakeTails[index].classList.add("tempSnake");
 
   container.appendChild(snakeTails[index]);
@@ -179,7 +184,7 @@ function snakeLeft() {
     onceLeft();
     snakeLeft();
     if (
-      snake.getBoundingClientRect().left <=
+      snake.getBoundingClientRect().left + dimensionOfSquare <=
       playground.getBoundingClientRect().left
     ) {
       fail();
@@ -273,14 +278,28 @@ function getRandomInt(max) {
 
 function spawnApple() {
   if (apple) apple.remove();
+
+  if (apple_interval) clearInterval(apple_interval);
   const leftBound = playground.getBoundingClientRect().left;
   const topBound = playground.getBoundingClientRect().top;
 
-  apple = document.createElement("div");
-  apple.style.height = dimensionOfSquare + "px";
-  apple.style.width = dimensionOfSquare + "px";
+  //
+  apple = document.createElement("img");
+  // apple = document.createElement("div");
+
+  apple.src = "./apple.png";
+  apple.style.height = dimensionOfSquare + 5 + "px";
+  apple.style.width = dimensionOfSquare + 5 + "px";
   apple.classList.add("apple");
   container.append(apple);
+
+  apple_interval = setInterval(() => {
+    apple.style.transform = "scale(1.5)"; // Enlarge for 500ms
+
+    setTimeout(() => {
+      apple.style.transform = "scale(1)"; // Reset after 500ms
+    }, 500);
+  }, 2000); // Repeat every 2 seconds
 
   let index = 0;
   let left;
