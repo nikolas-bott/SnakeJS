@@ -2,7 +2,7 @@ const LEFT = "LEFT";
 const RIGHT = "RIGHT";
 const UP = "UP";
 const DOWN = "DOWN";
-const speedInMs = 500;
+const speedInMs = 250;
 
 const playground = document.getElementById("playground");
 const container = document.getElementById("container");
@@ -13,13 +13,13 @@ const dimensionOfSquare = playground.clientWidth / 17;
 
 let timeSinceLastMove;
 
+let timeouts = [];
 let apple;
 let snakeTail;
 let snakeTails = [];
 let secondSnakeTail;
 
 let movingDirection = RIGHT;
-let intervals = [];
 let prevPositions = [
   {
     left: snake.getBoundingClientRect().left,
@@ -67,8 +67,7 @@ function inBound(a, b, bound) {
 }
 
 function isMoveDownSlowEnoguh() {
-  console.log(Date.now() - timeSinceLastMove >= 500);
-  return Date.now() - timeSinceLastMove >= 500;
+  return Date.now() - timeSinceLastMove >= speedInMs;
 }
 
 function checkIfAppleFound() {
@@ -101,9 +100,9 @@ function isAppleFound() {
   );
 }
 
-function clearIntervals() {
-  intervals.forEach(clearInterval);
-  intervals = [];
+function clearTimeouts() {
+  timeouts.forEach(clearTimeout);
+  timeouts = [];
 }
 
 function renderTail() {
@@ -130,10 +129,19 @@ function renderSingleTail(index) {
 }
 
 function snakeRight() {
-  clearIntervals();
+  clearTimeouts();
 
-  const interval_id = setInterval(() => {
+  let interval = speedInMs - (Date.now() - timeSinceLastMove);
+
+  if (isMoveDownSlowEnoguh()) {
+    interval = 0;
+  }
+
+  console.log("Interval: " + interval);
+
+  const timeout_id = setTimeout(() => {
     onceRight();
+    snakeRight();
     if (
       snake.getBoundingClientRect().right >=
       playground.getBoundingClientRect().right
@@ -141,8 +149,9 @@ function snakeRight() {
       fail();
       return;
     }
-  }, speedInMs);
-  intervals.push(interval_id);
+  }, interval);
+
+  timeouts.push(timeout_id);
 }
 function onceRight() {
   const snakePos = snake.getBoundingClientRect().left;
@@ -152,10 +161,19 @@ function onceRight() {
 }
 
 function snakeLeft() {
-  clearIntervals();
+  clearTimeouts();
 
-  const interval_id = setInterval(() => {
+  let interval = speedInMs - (Date.now() - timeSinceLastMove);
+
+  if (isMoveDownSlowEnoguh()) {
+    interval = 0;
+  }
+
+  console.log("Interval: " + interval);
+
+  const timeout_id = setTimeout(() => {
     onceLeft();
+    snakeLeft();
     if (
       snake.getBoundingClientRect().left <=
       playground.getBoundingClientRect().left
@@ -163,8 +181,9 @@ function snakeLeft() {
       fail();
       return;
     }
-  }, speedInMs);
-  intervals.push(interval_id);
+  }, interval);
+
+  timeouts.push(timeout_id);
 }
 
 function onceLeft() {
@@ -175,10 +194,19 @@ function onceLeft() {
 }
 
 function snakeUp() {
-  clearIntervals();
+  clearTimeouts();
 
-  const interval_id = setInterval(() => {
+  let interval = speedInMs - (Date.now() - timeSinceLastMove);
+
+  if (isMoveDownSlowEnoguh()) {
+    interval = 0;
+  }
+
+  console.log("Interval: " + interval);
+
+  const timeout_id = setTimeout(() => {
     onceUp();
+    snakeUp();
     if (
       snake.getBoundingClientRect().top + dimensionOfSquare <=
       playground.getBoundingClientRect().top
@@ -186,8 +214,9 @@ function snakeUp() {
       fail();
       return;
     }
-  }, speedInMs);
-  intervals.push(interval_id);
+  }, interval);
+
+  timeouts.push(timeout_id);
 }
 
 function onceUp() {
@@ -204,11 +233,19 @@ function newMove() {
 }
 
 function snakeDown() {
-  clearIntervals();
-  //renderTail();
-  const interval_id = setInterval(() => {
-    onceDown();
+  clearTimeouts();
 
+  let interval = speedInMs - (Date.now() - timeSinceLastMove);
+
+  if (isMoveDownSlowEnoguh()) {
+    interval = 0;
+  }
+
+  console.log("Interval: " + interval);
+
+  const timeout_id = setTimeout(() => {
+    onceDown();
+    snakeDown();
     if (
       snake.getBoundingClientRect().bottom >=
       playground.getBoundingClientRect().bottom
@@ -216,8 +253,9 @@ function snakeDown() {
       fail();
       return;
     }
-  }, speedInMs);
-  intervals.push(interval_id);
+  }, interval);
+
+  timeouts.push(timeout_id);
 }
 
 function onceDown() {
@@ -285,7 +323,7 @@ function fail() {
   foundApples = 0;
   score.innerText = "Apples found: " + foundApples;
 
-  clearIntervals();
+  clearTimeouts();
   snake.style.top =
     playground.getBoundingClientRect().top + 7 * dimensionOfSquare + "px";
   snake.style.left = playground.getBoundingClientRect().left + "px";
